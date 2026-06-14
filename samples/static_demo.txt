@@ -1,0 +1,6 @@
+MZ
+CreateRemoteThread
+WriteProcessMemory
+http://203.0.113.10/a
+Software\Microsoft\Windows\CurrentVersion\Run
+net localgroup administrators backup$ /add
