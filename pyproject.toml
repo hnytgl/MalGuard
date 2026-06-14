@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "malguard"
+version = "0.1.0"
+description = "Defensive automated malware triage: static extraction, sandbox event normalization, correlation, and reports."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "hnytgl"}]
+dependencies = []
+
+[project.optional-dependencies]
+pe = ["pefile>=2023.2.7"]
+yara = ["yara-python>=4.5.0"]
+dev = ["pytest>=8.0.0"]
+
+[project.scripts]
+malguard = "malguard.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["malguard*"]
+
