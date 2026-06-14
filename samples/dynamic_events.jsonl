@@ -1,0 +1,5 @@
+{"ts_ms": 15, "category": "process", "action": "start", "data": {"pid": 4100, "image": "sample.exe"}, "source": "example"}
+{"ts_ms": 320, "category": "network", "action": "connect", "data": {"dst_ip": "203.0.113.10", "dst_port": 443, "protocol": "tcp", "payload_prefix_hex": "474554202f"}, "source": "example"}
+{"ts_ms": 840, "category": "registry", "action": "RegSetValue", "data": {"path": "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\Updater", "value": "C:\\Users\\Public\\updater.exe"}, "source": "example"}
+{"ts_ms": 1250, "category": "account", "action": "net localgroup administrators", "data": {"user": "backup$"}, "source": "example"}
+
