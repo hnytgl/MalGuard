@@ -49,6 +49,16 @@ def confidence_for_event(ev: dict[str, Any]) -> float:
         "connect": 0.15,
         "http": 0.1,
         "isdebuggerpresent": 0.2,
+        "add-mppreference": 0.3,
+        "exclusionpath": 0.25,
+        "regsvr32": 0.3,
+        "microsoft.dll": 0.25,
+        "insttect.exe": 0.3,
+        "monitor.bat": 0.25,
+        "policymanagement.xml": 0.25,
+        ".net framework ngen vtie": 0.25,
+        "appdomainmanager": 0.3,
+        "win7.log": 0.25,
     }.items():
         if token in text:
             score += weight
@@ -75,6 +85,7 @@ def correlate(static_report: dict[str, Any], dynamic_events: list[dict[str, Any]
             "static_ioc_count": len(static_iocs),
             "dynamic_event_count": len(dynamic_events),
             "c2_match_count": len(c2_matches),
+            "family_match_count": len(static_report.get("family_matches", [])),
             "high_confidence_event_count": sum(1 for ev in timeline if ev["malicious_confidence"] >= 0.7),
         },
     }
@@ -89,4 +100,3 @@ def dedupe_persistence(rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             seen.add(key)
             result.append(row)
     return result
-
