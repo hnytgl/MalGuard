@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
+from .family_detection import detect_family_markers
 from .ioc import extract_iocs
 from .utils import md5_file, sha1_file, sha256_file, utc_now_iso
 
@@ -21,6 +22,8 @@ SENSITIVE_API_PATTERNS = {
     "registry_persistence": ["RegSetValue", "RegCreateKey", "Software\\Microsoft\\Windows\\CurrentVersion\\Run"],
     "anti_debug": ["IsDebuggerPresent", "CheckRemoteDebuggerPresent", "NtQueryInformationProcess"],
     "network": ["InternetOpen", "InternetConnect", "HttpSendRequest", "WinHttpSendRequest", "connect", "send", "recv"],
+    "defense_evasion": ["Add-MpPreference", "ExclusionPath", "regsvr32", "rundll32", "powershell", "FromBase64String"],
+    "loader_staging": ["VirtualAlloc", "VirtualProtect", "LoadLibrary", "GetProcAddress", "CreateThread"],
 }
 
 PERSISTENCE_MARKERS = {
@@ -31,6 +34,8 @@ PERSISTENCE_MARKERS = {
     "windows_service": [r"CreateService", r"sc.exe create", r"CurrentControlSet\\Services"],
     "windows_startup_folder": [r"Startup\\", r"Start Menu\\Programs\\Startup"],
     "windows_scheduled_task": [r"schtasks", r"TaskCache\\Tree"],
+    "windows_logon_script": [r"UserInitMprLogonScript"],
+    "windows_appdomain_manager": [r"AppDomainManagerAssembly", r"AppDomainManagerType", r"COR_ENABLE_PROFILING"],
     "linux_cron": [r"/etc/cron", r"crontab", r"cron.d"],
     "linux_systemd": [r"/etc/systemd/system", r"systemctl enable", r".service"],
     "shell_profile": [r".bashrc", r".profile", r"/etc/profile"],
@@ -160,6 +165,7 @@ def analyze_static(path: Path, yara_rules: list[Path] | None = None, unpacker: s
         "sensitive_api_sequences": detect_sensitive_sequences(strings),
         "persistence": detect_persistence_markers(strings),
         "account_backdoors": detect_account_backdoors(strings),
+        "family_matches": detect_family_markers(strings),
         "yara": scan_yara(path, yara_rules or []),
         "structure": {},
     }
@@ -207,4 +213,3 @@ def scan_yara(path: Path, rules: list[Path]) -> list[dict[str, Any]]:
         except Exception as exc:
             findings.append({"source": str(rule_path), "error": str(exc)})
     return findings
-
