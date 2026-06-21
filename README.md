@@ -16,6 +16,34 @@ MalGuard 是一个面向防御、应急响应和样本初筛的 Python 工具。
 - 静动态关联：匹配静态 IOC 与动态网络连接，合并持久化证据，生成带置信度的时间线。
 - 报告输出：统一 JSON、HTML 可视化报告和 STIX 2.1 IOC Bundle。
 
+## 本次更新：银狐识别特征
+
+本次更新重点增加了银狐相关样本的初筛能力。静态分析会把命中的家族化线索写入 `family_matches` 字段，便于在应急分析时快速看到“命中了哪些银狐相关特征、证据来自哪里、置信度是多少”。
+
+新增识别范围包括：
+
+- 银狐常见伪装安装器、释放文件和配置文件线索，例如 `insttect.exe`、`Microsoft.dll`、`monitor.bat`、`PolicyManagement.xml`、`target.pid`、`Config.ini`。
+- 常见持久化线索，例如计划任务、登录脚本、`.NET` 启动链、GAC 目录、`AppDomainManagerAssembly`、`AppDomainManagerType`、`COR_ENABLE_PROFILING`。
+- 常见防御规避命令，例如 `Add-MpPreference`、`ExclusionPath`、`regsvr32`、`rundll32`、PowerShell Base64 解码痕迹。
+- 常见配置篡改线索，例如 `Internet Settings\Zones`、ActiveX 安全项 `1201`、`1001`、`1004`。
+- 银狐相关远控载荷和家族字符串线索，例如 Winos、ValleyRAT、HackBrian、VFPower，以及公开报告中常见的 C2 端口特征。
+- 新增 `SilverFox_Static_Markers` YARA 规则，可配合 `--yara .\rules\suspicious_trojan.yar` 使用。
+
+使用示例：
+
+```powershell
+malguard static .\sample.exe -o .\out\static.json --yara .\rules\suspicious_trojan.yar
+```
+
+输出中重点查看：
+
+- `family_matches`：银狐相关家族化命中。
+- `sensitive_api_sequences`：防御规避、加载器、注入、网络和持久化线索。
+- `persistence`：注册表、计划任务、服务、登录脚本和 AppDomainManager 持久化线索。
+- `yara`：银狐相关 YARA 规则命中情况。
+
+这些规则用于防御侧样本初筛和证据聚合，不建议只凭单条字符串直接定性。实际分析时应结合哈希、网络 IOC、落地文件、进程树、注册表、计划任务和沙箱行为综合判断。
+
 ## 项目结构
 
 ```text
@@ -141,4 +169,3 @@ malguard sandbox-run .\sample.exe -o .\out\sandbox.jsonl --timeout 120 --i-under
 - 扩展 PE/ELF/Mach-O 深度结构分析。
 - 增加可配置评分策略和 MITRE ATT&CK 技术映射。
 - 将家族特征规则拆分为可外置配置，便于团队维护内部情报。
-
